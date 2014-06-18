@@ -10,15 +10,32 @@
 #import "VirtualRingBuffer.h"
 #import "Plugin.h"
 
+@protocol InputDelegate;
 
 @interface Input : NSObject
 {
     id<CogDecoder> decoder;
-    VirtualRingBuffer *buffer;
+    VirtualRingBuffer* buffer;
+    AudioStreamBasicDescription* format;
+    AudioChannelLayout* channelLayout;
+
+    NSCondition* pauseCond;
+    BOOL paused;
 }
 
-- (void) initWithUrl:(NSURL*) url;
-- (const AudioStreamBasicDescription*) format;
-- (const AudioChannelLayout*) channelLayout;
-- (void) seek: (long)frame;
+@property BOOL shouldContinue;
+@property long seekFrame;
+@property BOOL eofReached;
+@property BOOL ready;
+@property id<InputDelegate> player;
+
+- (BOOL) openUrl:(NSURL *) url;
+- (const AudioStreamBasicDescription *)format;
+- (const AudioChannelLayout *)channelLayout;
+- (void) run:(NSURL *) url;
+- (void) startWithUrl:(NSURL *)url player:(id<InputDelegate>)p;
+- (void) stop;
+- (void) pause;
+- (void) unpause;
+- (VirtualRingBuffer *)buffer;
 @end

@@ -161,7 +161,24 @@ void MetadataCallback(const FLAC__StreamDecoder *decoder, const FLAC__StreamMeta
 	    flacDecoder->frequency = metadata->data.stream_info.sample_rate;
 	    flacDecoder->bitsPerSample = metadata->data.stream_info.bits_per_sample;
 	    flacDecoder->totalFrames = metadata->data.stream_info.total_samples;
-	
+
+        AudioChannelLayoutTag clt = 0;
+        switch (flacDecoder->channels) {
+            case 1: clt = kAudioChannelLayoutTag_Mono; break;
+            case 2: clt = kAudioChannelLayoutTag_Stereo; break;
+            case 3: clt = kAudioChannelLayoutTag_MPEG_3_0_A; break;
+            case 4: clt = kAudioChannelLayoutTag_Quadraphonic; break;
+            case 5: clt = kAudioChannelLayoutTag_MPEG_5_0_A; break;
+            case 6: clt = kAudioChannelLayoutTag_MPEG_5_1_A; break;
+            case 7: clt = kAudioChannelLayoutTag_MPEG_6_1_A; break;
+            case 8: clt = kAudioChannelLayoutTag_MPEG_7_1_A; break;
+            default:
+                ALog(@"Unexpected FLAC channel count: %d", flacDecoder->channels);
+                clt = kAudioChannelLayoutTag_Stereo;
+        }
+
+        flacDecoder->channelLayoutTag = clt;
+
 	    [flacDecoder willChangeValueForKey:@"properties"];
 	    [flacDecoder didChangeValueForKey:@"properties"];
 
@@ -310,6 +327,7 @@ void ErrorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorS
 {
 	return [NSDictionary dictionaryWithObjectsAndKeys:
 		[NSNumber numberWithInt:channels],@"channels",
+        [NSNumber numberWithLong:channelLayoutTag],@"channelLayoutTag",
 		[NSNumber numberWithInt:bitsPerSample],@"bitsPerSample",
 		[NSNumber numberWithFloat:frequency],@"sampleRate",
 		[NSNumber numberWithDouble:totalFrames],@"totalFrames",

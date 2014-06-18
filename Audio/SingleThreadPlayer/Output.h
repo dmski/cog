@@ -1,8 +1,8 @@
 #import <Foundation/Foundation.h>
 #import <AudioToolbox/AudioToolbox.h>
 
-AudioChannelLayout* fillChannelLayout(AudioChannelLayout* pLayout);
-AudioDeviceID getDefaultDeviceId();
+@protocol OutputDelegate;
+@class SingleThreadPlayer;
 
 @interface Output : NSObject {
     AUGraph auGraph;
@@ -10,18 +10,17 @@ AudioDeviceID getDefaultDeviceId();
     AudioStreamBasicDescription* currentInFormat;
     AudioChannelLayout* currentInChannelLayout;
 
+    id<OutputDelegate> player;
+
     @public Float32 time;
 }
 
-- (BOOL) setupWithOutputDevice:(AudioDeviceID) deviceId
-                  streamFormat:(AudioStreamBasicDescription*) format
-                channelMapping:(AudioChannelLayout*) channelLayout;
-
+- (BOOL) setupWithPlayer:(id<OutputDelegate>) player;
 - (BOOL) start;
-
 - (BOOL) stop;
-
 - (BOOL) isRunning;
-
 - (BOOL) setVolume:(double)vol;
+- (SingleThreadPlayer*) player;
+- (const AudioStreamBasicDescription*) format;
+- (const AudioChannelLayout*) channelLayout;
 @end

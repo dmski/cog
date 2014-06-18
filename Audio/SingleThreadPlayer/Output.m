@@ -7,15 +7,16 @@
 
 #import "Output.h"
 #import "Logging.h"
+#import "SingleThreadPlayer.h"
 
 #define ALog(fmt, ...) NSLog((@"%s (line %d) " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
 #define checkErr(err, fmt, ...) if((err) != noErr) {NSLog((@"%s (line %d) Err code = %x, %d " fmt), __PRETTY_FUNCTION__, __LINE__, (int)(err), (int)(err), ##__VA_ARGS__); return NO;}
 #define checkErrGoto(err, fmt, ...) if((err) != noErr) {NSLog((@"%s (line %d) Err code = %x, %d " fmt), __PRETTY_FUNCTION__, __LINE__, (int)(err), (int)(err), ##__VA_ARGS__); goto error;}
 
-AudioChannelLayout* fillChannelLayout(AudioChannelLayout* pLayout) {
+static AudioChannelLayout* fillChannelLayout(AudioChannelLayout* pLayout) {
     UInt32 propSize = 0;
     AudioChannelLayout* result = NULL;
-    OSErr ret = noErr;
+    OSStatus ret = noErr;
 
     if (pLayout->mNumberChannelDescriptions > 0) {
         // already filled
@@ -460,6 +461,29 @@ static OSStatus renderInputSine(
     return noErr;
 }
 
+static OSStatus renderInput(
+        void *inRefCon,
+        AudioUnitRenderActionFlags *ioActionFlags,
+        const AudioTimeStamp *inTimeStamp,
+        UInt32 inBusNumber,
+        UInt32 inNumberFrames,
+        AudioBufferList  *ioData) {
+
+    Output* output = (Output*) inRefCon;
+    OSStatus err = noErr;
+    void* readPointer = ioData->mBuffers[0].mData;
+    int bytesRead = [[output player] outputReadAudio:readPointer frameCount:inNumberFrames];
+
+    if (bytesRead < 0) {
+        err = -1;
+        bytesRead = 0;
+    }
+
+    ioData->mBuffers[0].mDataByteSize = (UInt32)bytesRead;
+
+    return err;
+}
+
 static BOOL setMixingMatrix(AudioUnit mixerUnit,
                             Float32* mixingMatrix,
                             UInt32 mixerInChans,
@@ -554,24 +578,6 @@ static BOOL setMixingMatrix(AudioUnit mixerUnit,
     // }
 }
 
-AudioDeviceID getDefaultDeviceId() {
-    UInt32 size = sizeof(AudioDeviceID);
-    AudioDeviceID defaultDeviceId;
-    AudioObjectPropertyAddress addr = {
-            .mSelector = kAudioHardwarePropertyDefaultOutputDevice,
-            .mScope = kAudioObjectPropertyScopeGlobal,
-            .mElement = kAudioObjectPropertyElementMaster
-    };
-
-    OSStatus err = AudioObjectGetPropertyData(kAudioObjectSystemObject, &addr, 0, NULL, &size, &defaultDeviceId);
-    if (err != noErr) {
-        ALog(@"Can't get default device id: err = %d", (int) err);
-        return -1;
-    }
-
-    return defaultDeviceId;
-}
-
 @implementation Output
 - (id)init {
     self = [super init];
@@ -598,10 +604,7 @@ AudioDeviceID getDefaultDeviceId() {
     [super dealloc];
 }
 
-- (BOOL) setupWithOutputDevice:(AudioDeviceID)deviceId
-                  streamFormat:(AudioStreamBasicDescription *)format
-                channelMapping:(AudioChannelLayout *)channelLayout {
-
+- (BOOL) setupWithPlayer:(id<OutputDelegate>) player {
     AudioComponentDescription outputDesc = {
         .componentType = kAudioUnitType_Output,
         .componentSubType = kAudioUnitSubType_HALOutput,
@@ -609,6 +612,12 @@ AudioDeviceID getDefaultDeviceId() {
         .componentFlags = 0,
         .componentFlagsMask = 0
     };
+
+    self->player = player;
+
+    AudioDeviceID deviceId = [player outputGetDeviceId];
+    const AudioStreamBasicDescription* format = [player outputGetFormat];
+    const AudioChannelLayout* channelLayout = [player outputGetChannelLayout];
 
     AUNode outputNode, headNode;
     AudioUnit headUnit, mixerUnit;
@@ -658,7 +667,7 @@ AudioDeviceID getDefaultDeviceId() {
     checkErrGoto(ret, @"Can't get head unit");
 
     AURenderCallbackStruct rcbs;
-    rcbs.inputProc = &renderInputSine;
+    rcbs.inputProc = &renderInput;
     rcbs.inputProcRefCon = self;
     ret = AudioUnitSetProperty(headUnit,
                                kAudioUnitProperty_SetRenderCallback,
@@ -725,6 +734,7 @@ error:
 }
 
 - (BOOL)setVolume:(double)vol {
+    NSLog(@"Output setting volume: %f", vol);
     OSStatus ret = AudioUnitSetParameter(outputUnit,
                                          kHALOutputParam_Volume,
                                          kAudioUnitScope_Global,
@@ -733,6 +743,18 @@ error:
                                          0);
     checkErr(ret, @"Can't set volume");
     return YES;
+}
+
+- (SingleThreadPlayer *)player {
+    return player;
+}
+
+- (const AudioStreamBasicDescription *)format {
+    return currentInFormat;
+}
+
+- (const AudioChannelLayout *)channelLayout {
+    return currentInChannelLayout;
 }
 
 

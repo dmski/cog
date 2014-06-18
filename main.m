@@ -7,64 +7,105 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Audio/SingleThreadPlayer/Output.h"
+#import "Input.h"
+#import "SingleThreadPlayer.h"
 #import "Audio/Utils/Semaphore.h"
-#import "Utils/Logging.h"
+
+@interface DummyPlayer : NSObject <InputDelegate, OutputDelegate> {
+    Input* input;
+}
+@end
+
+@implementation DummyPlayer
+- (void)inputReady:(Input *)sender {
+    NSLog(@"Input ready");
+    input = sender;
+}
+
+- (void)inputEofReached:(Input *)sender {
+    NSLog(@"Input eof reached");
+}
+
+- (void)inputExited:(Input *)sender {
+    NSLog(@"Input exited");
+}
+
+
+- (AudioDeviceID)outputGetDeviceId {
+    UInt32 size = sizeof(AudioDeviceID);
+    AudioDeviceID defaultDeviceId;
+    AudioObjectPropertyAddress addr = {
+            .mSelector = kAudioHardwarePropertyDefaultOutputDevice,
+            .mScope = kAudioObjectPropertyScopeGlobal,
+            .mElement = kAudioObjectPropertyElementMaster
+    };
+
+    OSStatus err = AudioObjectGetPropertyData(kAudioObjectSystemObject, &addr, 0, NULL, &size, &defaultDeviceId);
+    if (err != noErr) {
+        NSLog(@"Can't get default device id: err = %d", (int) err);
+        return (AudioDeviceID) -1;
+    }
+
+    return defaultDeviceId;
+}
+
+- (const AudioStreamBasicDescription *)outputGetFormat {
+    return [input format];
+}
+
+- (const AudioChannelLayout *)outputGetChannelLayout {
+    return [input channelLayout];
+}
+
+- (int)outputReadAudio:(void *)ptr frameCount:(int)frameCount {
+    VirtualRingBuffer* buf = [input buffer];
+    void* bufPtr = NULL;
+    int bytesToRead = frameCount * [input format]->mBytesPerFrame;
+
+    int available = [buf lengthAvailableToReadReturningPointer:&bufPtr];
+    if (bytesToRead > available) {
+        bytesToRead = available;
+    }
+
+//    char* pb = (char*) bufPtr;
+//    for (int i=0; i<bytesToRead; i+=105) {
+//        NSLog(@"buf[%d] = %d", i, (int) pb[i]);
+//    }
+
+    memcpy(ptr, bufPtr, bytesToRead);
+    [buf didReadLength:bytesToRead];
+    [input unpause];
+
+//    NSLog(@"Read %d bytes, available = %d", bytesToRead, available);
+
+    return bytesToRead;
+}
+
+@end
 
 int main(int argc, char *argv[])
 {
-//	srandom(time(NULL));
+	srandom(time(NULL));
+
+    return NSApplicationMain(argc,  (const char **) argv);
+
+//    Semaphore* sem = [[Semaphore alloc] init];
+//    NSURL* url = [NSURL fileURLWithPath:@"/Users/dima/Music/Mzk/443080_vibe_w2gh.mp3"];
+//    DummyPlayer* player = [[DummyPlayer alloc] init];
 //
-//    return NSApplicationMain(argc,  (const char **) argv);
-    Output* out = [[Output alloc] init];
-
-    AudioStreamBasicDescription asbd = {
-        .mSampleRate = 44100.0,
-        .mFormatID = kAudioFormatLinearPCM,
-        // .mFormatFlags = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked,
-        .mFormatFlags = kAudioFormatFlagIsFloat,
-        // .mBytesPerPacket = 4,
-        .mBytesPerPacket = 4*6,
-        .mFramesPerPacket = 1,
-        // .mBytesPerFrame = 4,
-        .mBytesPerFrame = 4*6,
-        .mChannelsPerFrame = 6,
-        // .mBitsPerChannel = 16,
-        .mBitsPerChannel = 32,
-        .mReserved = 0
-    };
-
-    AudioChannelLayout layout = {
-//        .mChannelLayoutTag = kAudioChannelLayoutTag_Stereo,
-        .mChannelLayoutTag = kAudioChannelLayoutTag_AudioUnit_5_1,
-        .mChannelBitmap = 0,
-        .mNumberChannelDescriptions = 0,
-        .mChannelDescriptions = NULL
-    };
-
-    AudioChannelLayout* filledLayout = fillChannelLayout(&layout);
-    NSLog(@"Filled input layout:");
-    NSLog(@"tag = %d", (unsigned int) layout.mChannelLayoutTag);
-    NSLog(@"bitmap = %d", (unsigned int) layout.mChannelBitmap);
-    NSLog(@"number desc = %d", (unsigned int) layout.mNumberChannelDescriptions);
-
-    for (int i=0; i<layout.mNumberChannelDescriptions; i++) {
-        NSLog(@"  desc %d:", i);
-        NSLog(@"    label = %d", (unsigned int) layout.mChannelDescriptions[i].mChannelLabel);
-        NSLog(@"    flags = %d", (unsigned int) layout.mChannelDescriptions[i].mChannelFlags);
-        NSLog(@"    coord = %f %f %f", (float) layout.mChannelDescriptions[i].mCoordinates[0], (float) layout.mChannelDescriptions[i].mCoordinates[1], (float) layout.mChannelDescriptions[i].mCoordinates[2]);
-    }
-
-    AudioDeviceID devId = getDefaultDeviceId();
-
-    if ([out setupWithOutputDevice: devId streamFormat:&asbd channelMapping:filledLayout]) {
-        ALog(@"Great success");
-        [out start];
-        Semaphore* s = [[Semaphore alloc] init];
-        [s waitIndefinitely];
-    } else {
-        ALog(@"Not great success");
-    }
-
-    return 0;
+//    Input* input = [[Input alloc] init];
+//    [input startWithUrl:url player:player];
+//
+//    while (![input ready]) {
+//        NSLog(@"Not ready");
+//    }
+//
+//    Output* output = [[Output alloc] init];
+//    [output setupWithPlayer:player];
+//    [output start];
+//    [output setVolume:100];
+//
+//    [sem waitIndefinitely];
+//
+//    return 0;
 }

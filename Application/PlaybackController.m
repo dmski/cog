@@ -35,7 +35,7 @@ NSString *CogPlaybackDidStopNotficiation = @"CogPlaybackDidStopNotficiation";
 		seekable = NO;
 		fading = NO;
 	
-		audioPlayer = [[AudioPlayer alloc] init];
+		audioPlayer = [[SingleThreadPlayer alloc] init];
 		[audioPlayer setDelegate:self];
 		[self setPlaybackStatus: kCogStatusStopped];
 	}

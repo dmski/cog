@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import <CoreAudio/CoreAudio.h>
 
 @interface PlaylistEntry : NSObject {
 	int index;
@@ -90,6 +91,7 @@
 @property int channels;
 @property int bitsPerSample;
 @property float sampleRate;
+@property AudioChannelLayoutTag channelLayoutTag;
 
 @property(retain) NSString *endian;
 
