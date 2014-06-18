@@ -174,7 +174,7 @@ static BOOL compatible(Input* input, Output* output) {
         [output start];
     }
 
-    [delegate audioPlayer:self didChangeStatus:[NSNumber numberWithInt:kCogStatusPaused] userInfo:currentUserInfo];
+    [delegate audioPlayer:self didChangeStatus:[NSNumber numberWithInt:kCogStatusPlaying] userInfo:currentUserInfo];
 }
 
 - (void)seekToTime:(double)time {
