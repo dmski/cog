@@ -420,6 +420,7 @@ static BOOL compatible(Input* input, Output* output) {
 
     output = [[Output alloc] init];
     [output setupWithPlayer:self];
+    [output setVolume:volume];
     [output start];
 }
 

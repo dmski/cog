@@ -171,6 +171,38 @@ static BOOL setupMixer(AUGraph auGraph,
             deviceChannelLayout = filledLayout;
         }
 
+        // If device's channels aren't assigned in audio midi setup,
+        // then the layout obtained here will contain 'unknown' values for all channel tags.
+        // If that's the case, get preferred stereo channels and use those.
+        BOOL allChannelsUnassigned = YES;
+        for (int i=0; i<deviceChannelLayout->mNumberChannelDescriptions; i++) {
+            AudioChannelLabel label = deviceChannelLayout->mChannelDescriptions[i].mChannelLabel;
+            if (label != kAudioChannelLabel_Unknown && label != kAudioChannelLabel_Unused) {
+                allChannelsUnassigned = NO;
+                break;
+            }
+        }
+
+        if (allChannelsUnassigned) {
+            UInt32 stereoChannels[2] = {0, 0};
+            UInt32 stereoChannelsSize = sizeof(stereoChannels);
+            ret = AudioUnitGetProperty(outputUnit,
+                                           kAudioDevicePropertyPreferredChannelsForStereo,
+                                           kAudioUnitScope_Output,
+                                           0,
+                                           stereoChannels,
+                                           &stereoChannelsSize);
+            if (ret != noErr) {
+                // just use first two channels for stereo
+                stereoChannels[0] = 1;
+                stereoChannels[1] = 2;
+            }
+
+            deviceChannelLayout->mChannelLayoutTag = kAudioChannelLayoutTag_UseChannelDescriptions;
+            deviceChannelLayout->mChannelDescriptions[stereoChannels[0] - 1].mChannelLabel = kAudioChannelLabel_Left;
+            deviceChannelLayout->mChannelDescriptions[stereoChannels[1] - 1].mChannelLabel = kAudioChannelLabel_Right;
+        }
+
         setChannelCount(&deviceFormat, deviceChannelLayout->mNumberChannelDescriptions);
     } else {
         ALog(@"No preferred channel layout for device: assuming stereo");
@@ -208,7 +240,6 @@ static BOOL setupMixer(AUGraph auGraph,
             // if that fails - get mixing matrix from original mapping to stereo
             setChannelCount(&deviceFormat, 2);
             mixerOutputLayout = makeStereoLayout();
-            const AudioChannelLayout* layouts[2];
             layouts[0] = inputLayout;
             layouts[1] = mixerOutputLayout;
             ret = AudioFormatGetPropertyInfo(kAudioFormatProperty_MatrixMixMap,
@@ -222,6 +253,9 @@ static BOOL setupMixer(AUGraph auGraph,
                                              layouts,
                                              &propSize,
                                              *mixingMatrix);
+            } else {
+                free(*mixingMatrix);
+                *mixingMatrix = NULL;
             }
         }
     }
