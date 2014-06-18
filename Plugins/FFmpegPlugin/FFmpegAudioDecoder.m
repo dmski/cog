@@ -243,7 +243,7 @@ static int min(int a, int b)
 
 + (NSArray *)fileTypes
 {
-    return [NSArray arrayWithObjects:@"ape", @"wma", @"mp3", nil];
+    return [NSArray arrayWithObjects:@"ape", @"wma", nil];
 }
 
 + (NSArray *)mimeTypes

@@ -713,8 +713,7 @@ audio_linear_round(unsigned int bits,
 
 + (NSArray *)fileTypes
 {
-	return nil; 
-//    return [NSArray arrayWithObjects:@"mp3",nil];
+    return [NSArray arrayWithObjects:@"mp3",nil];
 }
 
 + (NSArray *)mimeTypes
