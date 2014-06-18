@@ -1,7 +1,6 @@
 //
 // Created by Dmitry Promsky on 03/06/14.
 //
-// To change the template use AppCode | Preferences | File Templates.
 //
 
 
