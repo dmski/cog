@@ -145,15 +145,19 @@ static BOOL compatible(Input* input, Output* output) {
     @synchronized (self) {
         if (nil != output) {
             [output stop];
+            [output release];
+            output = nil;
         }
 
         if (nil != currentInput) {
             [currentInput stop];
+            currentInput = nil;
             currentUserInfo = nil;
         }
 
         if (nil != nextInput) {
             [nextInput stop];
+            nextInput = nil;
             nextUserInfo = nil;
         }
 
