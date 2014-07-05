@@ -115,53 +115,49 @@ static BOOL compatible(Input* input, Output* output) {
 }
 
 - (void)play:(NSURL *)url withUserInfo:(id)userInfo {
-    @synchronized (self) {
-        if (output != nil) {
-            [output stop];
-            [output release];
-            output = nil;
-        }
-
-        if (currentInput != nil) {
-            [currentInput stop];
-            currentInput = nil;
-        }
-
-        if (nextInput != nil) {
-            [nextInput stop];
-            nextInput = nil;
-        }
-
-        currentInput = [[Input alloc] init];
-        currentUserInfo = userInfo;
-        bytesPlayed = 0;
-        [currentInput startWithUrl:url player:self];
-        [delegate audioPlayer:self didChangeStatus:[NSNumber numberWithInt:kCogStatusPlaying] userInfo:userInfo];
+    if (output != nil) {
+        [output stop];
+        [output release];
+        output = nil;
     }
+
+    if (currentInput != nil) {
+        [currentInput stop];
+        currentInput = nil;
+    }
+
+    if (nextInput != nil) {
+        [nextInput stop];
+        nextInput = nil;
+    }
+
+    currentInput = [[Input alloc] init];
+    currentUserInfo = userInfo;
+    bytesPlayed = 0;
+    [currentInput startWithUrl:url player:self];
+    [delegate audioPlayer:self didChangeStatus:[NSNumber numberWithInt:kCogStatusPlaying] userInfo:userInfo];
 }
 
 - (void)stop {
-    @synchronized (self) {
-        if (nil != output) {
-            [output stop];
-            [output release];
-            output = nil;
-        }
-
-        if (nil != currentInput) {
-            [currentInput stop];
-            currentInput = nil;
-            currentUserInfo = nil;
-        }
-
-        if (nil != nextInput) {
-            [nextInput stop];
-            nextInput = nil;
-            nextUserInfo = nil;
-        }
-
-        [delegate audioPlayer:self didChangeStatus:[NSNumber numberWithInt:kCogStatusStopped] userInfo:currentUserInfo];
+    if (nil != output) {
+        [output stop];
+        [output release];
+        output = nil;
     }
+
+    if (nil != currentInput) {
+        [currentInput stop];
+        currentInput = nil;
+        currentUserInfo = nil;
+    }
+
+    if (nil != nextInput) {
+        [nextInput stop];
+        nextInput = nil;
+        nextUserInfo = nil;
+    }
+
+    [delegate audioPlayer:self didChangeStatus:[NSNumber numberWithInt:kCogStatusStopped] userInfo:currentUserInfo];
 }
 
 - (void)pause {
@@ -428,19 +424,19 @@ static BOOL compatible(Input* input, Output* output) {
 }
 
 - (void)switchToNext {
-    @synchronized (self) {
-        bytesPlayed = 0;
-        if (nil == nextInput) {
-            [output stop];
-            [currentInput stop];
-            [delegate audioPlayer:self willEndStream:currentUserInfo];
-            currentInput = nextInput;
-            currentUserInfo = nextUserInfo;
-            nextInput = nil;
-            nextUserInfo = nil;
-        } else {
-            if ([nextInput ready]) {
-                if (compatible(nextInput, output)) {
+    bytesPlayed = 0;
+    if (nil == nextInput) {
+        [output stop];
+        [currentInput stop];
+        [delegate audioPlayer:self willEndStream:currentUserInfo];
+        currentInput = nextInput;
+        currentUserInfo = nextUserInfo;
+        nextInput = nil;
+        nextUserInfo = nil;
+    } else {
+        if ([nextInput ready]) {
+            if (compatible(nextInput, output)) {
+                @synchronized (self) {
                     Input *oldInput = currentInput;
                     currentInput = nextInput;
                     currentUserInfo = nextUserInfo;
@@ -448,14 +444,6 @@ static BOOL compatible(Input* input, Output* output) {
                     nextUserInfo = nil;
                     [oldInput stop];
                     [delegate audioPlayer:self didBeginStream:currentUserInfo];
-                } else {
-                    [output stop];
-                    [currentInput stop];
-                    currentInput = nextInput;
-                    currentUserInfo = nextUserInfo;
-                    nextInput = nil;
-                    nextUserInfo = nil;
-                    [self inputReady:currentInput];
                 }
             } else {
                 [output stop];
@@ -464,7 +452,15 @@ static BOOL compatible(Input* input, Output* output) {
                 currentUserInfo = nextUserInfo;
                 nextInput = nil;
                 nextUserInfo = nil;
+                [self inputReady:currentInput];
             }
+        } else {
+            [output stop];
+            [currentInput stop];
+            currentInput = nextInput;
+            currentUserInfo = nextUserInfo;
+            nextInput = nil;
+            nextUserInfo = nil;
         }
     }
 }
