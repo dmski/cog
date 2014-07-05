@@ -461,6 +461,7 @@
 
 - (PlaylistEntry *)shuffledEntryAtIndex:(int)i
 {
+    DLog(@"In shuffledEntryAtIndex: %d", i);
 	RepeatMode repeat = [self repeat];
 	
 	while (i < 0)
@@ -487,7 +488,8 @@
 			return nil;
 		}
 	}
-	
+
+    DLog(@"Exiting shuffledEntryAtIndex");
 	return [shuffleList objectAtIndex:i];
 }
 
