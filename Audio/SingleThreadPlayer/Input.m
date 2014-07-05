@@ -203,6 +203,10 @@
         }
     }
 
+    if (decoder != nil) {
+        [decoder close];
+    }
+
     [[self player] inputExited:self];
     NSLog(@"Input exiting");
 }
