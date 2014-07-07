@@ -115,27 +115,14 @@ static BOOL compatible(Input* input, Output* output) {
 }
 
 - (void)play:(NSURL *)url withUserInfo:(id)userInfo {
-    if (output != nil) {
-        [output stop];
-        [output release];
-        output = nil;
-    }
-
-    if (currentInput != nil) {
-        [currentInput stop];
-        currentInput = nil;
-    }
-
-    if (nextInput != nil) {
-        [nextInput stop];
-        nextInput = nil;
-    }
+    [self stop];
 
     currentInput = [[Input alloc] init];
     currentUserInfo = userInfo;
     bytesPlayed = 0;
     [currentInput startWithUrl:url player:self];
     [delegate audioPlayer:self didChangeStatus:[NSNumber numberWithInt:kCogStatusPlaying] userInfo:userInfo];
+    [delegate audioPlayer:self didBeginStream:currentUserInfo];
 }
 
 - (void)stop {
@@ -247,10 +234,11 @@ static BOOL compatible(Input* input, Output* output) {
             nextInput = nil;
         }
 
-        nextInput = [[Input alloc] init];
-        nextUserInfo = userInfo;
-
-        [nextInput startWithUrl:url player:self];
+        if (url != nil) {
+            nextInput = [[Input alloc] init];
+            nextUserInfo = userInfo;
+            [nextInput startWithUrl:url player:self];
+        }
     }
 }
 
@@ -373,7 +361,6 @@ static BOOL compatible(Input* input, Output* output) {
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         if (sender == currentInput) {
             [self initOutput];
-            [delegate audioPlayer:self didBeginStream:currentUserInfo];
         }
     }];
 }
@@ -388,6 +375,10 @@ static BOOL compatible(Input* input, Output* output) {
                 currentUserInfo = nextUserInfo;
                 nextInput = nil;
                 nextUserInfo = nil;
+
+                if (currentInput != nil) {
+                    [delegate audioPlayer:self didBeginStream:currentUserInfo];
+                }
             }
         }
     }];
@@ -395,7 +386,6 @@ static BOOL compatible(Input* input, Output* output) {
 
 - (void)inputExited:(Input *)sender {
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        [sender release];
         if (sender == currentInput) {
             currentInput = nil;
             currentUserInfo = nil;
@@ -405,6 +395,8 @@ static BOOL compatible(Input* input, Output* output) {
             nextInput = nil;
             nextUserInfo = nil;
         }
+
+        [sender release];
     }];
 }
 @end
@@ -462,6 +454,10 @@ static BOOL compatible(Input* input, Output* output) {
             nextInput = nil;
             nextUserInfo = nil;
         }
+    }
+
+    if (currentInput != nil) {
+        [delegate audioPlayer:self didBeginStream:currentUserInfo];
     }
 }
 

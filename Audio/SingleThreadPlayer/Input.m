@@ -143,13 +143,13 @@
 }
 
 - (void)run:(NSURL*) url {
-    NSLog(@"Input opening");
+    DLog(@"Input opening");
     if ([self openUrl:url]) {
-        NSLog(@"Input opened");
+        DLog(@"Input opened");
         [self setReady:YES];
         [[self player] inputReady:self];
     } else {
-        NSLog(@"Input is not opened");
+        DLog(@"Input is not opened");
         [self setShouldContinue:NO];
         [self setEofReached:YES];
         [[self player] inputEofReached:self];
@@ -190,13 +190,12 @@
 
                 int framesRead = [decoder readAudio:buf frames:framesToRead];
                 if (framesRead <= 0) {
-                    NSLog(@"Input eof reached");
+                    DLog(@"Input eof reached");
                     [self setEofReached:YES];
                     [[self player] inputEofReached:self];
                     [self pause];
                 } else {
                     [buffer didWriteLength:(framesRead * format->mBytesPerFrame)];
-//                    NSLog(@"Written %d bytes", (framesRead * format->mBytesPerFrame));
                 }
             }
         }
@@ -207,7 +206,7 @@
     }
 
     [[self player] inputExited:self];
-    NSLog(@"Input exiting");
+    DLog(@"Input exiting");
 }
 
 - (void)startWithUrl:(NSURL*)url player:(id<InputDelegate>)p {
