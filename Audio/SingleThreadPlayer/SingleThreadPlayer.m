@@ -11,6 +11,48 @@
 #import "Status.h"
 #import "PluginController.h"
 
+AudioChannelLayout* fillChannelLayout(AudioChannelLayout* pLayout) {
+    UInt32 propSize = 0;
+    AudioChannelLayout* result = NULL;
+    OSStatus ret = noErr;
+
+    if (pLayout->mNumberChannelDescriptions > 0) {
+        // already filled
+        return result;
+    }
+
+    if (pLayout->mChannelLayoutTag == kAudioChannelLayoutTag_UseChannelBitmap) {
+        ret = AudioFormatGetPropertyInfo(kAudioFormatProperty_ChannelLayoutForBitmap,
+                sizeof(UInt32),
+                &pLayout->mChannelBitmap,
+                &propSize);
+        if (ret == noErr) {
+            result = (AudioChannelLayout*) malloc(propSize);
+            AudioFormatGetProperty(kAudioFormatProperty_ChannelLayoutForBitmap,
+                    sizeof(UInt32),
+                    &pLayout->mChannelBitmap,
+                    &propSize,
+                    result);
+        }
+    } else if (pLayout->mChannelLayoutTag != kAudioChannelLayoutTag_UseChannelDescriptions) {
+        // ALog(@"Filling layout for tag");
+        ret = AudioFormatGetPropertyInfo(kAudioFormatProperty_ChannelLayoutForTag,
+                sizeof(AudioChannelLayoutTag),
+                &pLayout->mChannelLayoutTag,
+                &propSize);
+        if (ret == noErr) {
+            result = (AudioChannelLayout*) malloc(propSize);
+            AudioFormatGetProperty(kAudioFormatProperty_ChannelLayoutForTag,
+                    sizeof(AudioChannelLayoutTag),
+                    &pLayout->mChannelLayoutTag,
+                    &propSize,
+                    result);
+        }
+    }
+
+    return result;
+}
+
 static BOOL formatsEq(const AudioStreamBasicDescription* l, const AudioStreamBasicDescription* r) {
     BOOL ptrEq = (l == r);
 
@@ -218,7 +260,11 @@ static BOOL compatible(Input* input, Output* output) {
 - (double)amountPlayed {
     if (output != nil) {
         const AudioStreamBasicDescription* fmt = [output format];
-        return ((double)bytesPlayed) / fmt->mSampleRate / fmt->mBytesPerFrame;
+        if (fmt != NULL) {
+            return ((double)bytesPlayed) / fmt->mSampleRate / fmt->mBytesPerFrame;
+        } else {
+            return 0;
+        }
     }
     return 0;
 }

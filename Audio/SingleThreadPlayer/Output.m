@@ -12,48 +12,6 @@
 #define checkErr(err, fmt, ...) if((err) != noErr) {NSLog((@"%s (line %d) Err code = %x, %d " fmt), __PRETTY_FUNCTION__, __LINE__, (int)(err), (int)(err), ##__VA_ARGS__); return NO;}
 #define checkErrGoto(err, fmt, ...) if((err) != noErr) {NSLog((@"%s (line %d) Err code = %x, %d " fmt), __PRETTY_FUNCTION__, __LINE__, (int)(err), (int)(err), ##__VA_ARGS__); goto error;}
 
-static AudioChannelLayout* fillChannelLayout(AudioChannelLayout* pLayout) {
-    UInt32 propSize = 0;
-    AudioChannelLayout* result = NULL;
-    OSStatus ret = noErr;
-
-    if (pLayout->mNumberChannelDescriptions > 0) {
-        // already filled
-        return result;
-    }
-
-    if (pLayout->mChannelLayoutTag == kAudioChannelLayoutTag_UseChannelBitmap) {
-        ret = AudioFormatGetPropertyInfo(kAudioFormatProperty_ChannelLayoutForBitmap,
-                                   sizeof(UInt32),
-                                   &pLayout->mChannelBitmap,
-                                   &propSize);
-        if (ret == noErr) {
-            result = (AudioChannelLayout*) malloc(propSize);
-            AudioFormatGetProperty(kAudioFormatProperty_ChannelLayoutForBitmap,
-                                   sizeof(UInt32),
-                                   &pLayout->mChannelBitmap,
-                                   &propSize,
-                                   result);
-        }
-    } else if (pLayout->mChannelLayoutTag != kAudioChannelLayoutTag_UseChannelDescriptions) {
-        // ALog(@"Filling layout for tag");
-        ret = AudioFormatGetPropertyInfo(kAudioFormatProperty_ChannelLayoutForTag,
-                                         sizeof(AudioChannelLayoutTag),
-                                         &pLayout->mChannelLayoutTag,
-                                         &propSize);
-        if (ret == noErr) {
-            result = (AudioChannelLayout*) malloc(propSize);
-            AudioFormatGetProperty(kAudioFormatProperty_ChannelLayoutForTag,
-                                   sizeof(AudioChannelLayoutTag),
-                                   &pLayout->mChannelLayoutTag,
-                                   &propSize,
-                                   result);
-        }
-    }
-
-    return result;
-}
-
 static AudioChannelLayout* makeStereoLayout() {
     AudioChannelLayout layout = {
         .mChannelLayoutTag = kAudioChannelLayoutTag_Stereo,

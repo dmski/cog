@@ -83,6 +83,14 @@
     NSNumber* chlobj = [[decoder properties] objectForKey:@"channelLayoutTag"];
     if (chlobj != nil) {
         channelLayoutTag = [chlobj unsignedIntValue];
+        if (channelLayoutTag == kAudioChannelLayoutTag_DiscreteInOrder) {
+            NSNumber* chnobj = [[decoder properties] objectForKey:@"channels"];
+            UInt32 chans = 2;
+            if (chnobj != nil) {
+                chans = [chnobj unsignedIntValue];
+            }
+            channelLayoutTag |= chans;
+        }
     }
 
     OSStatus ret = AudioFormatGetPropertyInfo(kAudioFormatProperty_ChannelLayoutForTag,
@@ -103,6 +111,12 @@
                            &channelLayoutTag,
                            &chlsize,
                            channelLayout);
+
+    if (channelLayout->mNumberChannelDescriptions == 0) {
+        AudioChannelLayout* filledLayout = fillChannelLayout(channelLayout);
+        free(channelLayout);
+        channelLayout = filledLayout;
+    }
 
     AudioStreamBasicDescription asbd = propertiesToASBD([decoder properties]);
     format = malloc(sizeof(AudioStreamBasicDescription));

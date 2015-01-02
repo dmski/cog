@@ -8,6 +8,8 @@
 #import "Input.h"
 #import "Output.h"
 
+AudioChannelLayout* fillChannelLayout(AudioChannelLayout* pLayout);
+
 @protocol AudioPlayerDelegate;
 @class Output;
 
