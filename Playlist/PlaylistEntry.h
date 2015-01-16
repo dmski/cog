@@ -58,6 +58,7 @@
 @property(retain, readonly) NSNumber *length;
 @property(readonly) NSString *path;
 @property(readonly) NSString *filename;
+@property(readonly) NSString *absoluteUrlStr;
 
 @property int index;
 @property int shuffleIndex;

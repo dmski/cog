@@ -120,7 +120,7 @@
                                                                          [metadata objectForKey:@"artist"],
                                                                          [metadata objectForKey:@"genre"],
                                                                          [metadata objectForKey:@"year"]];
-    return imageCacheTag;
+    return [imageCacheTag stringByReplacingOccurrencesOfString:@"/" withString:@""];
 }
 
 + (BOOL)isCoverFile:(NSString *)fileName

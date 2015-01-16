@@ -140,6 +140,12 @@
 	return [[self.URL path] lastPathComponent];
 }
 
+@dynamic absoluteUrlStr;
+- (NSString *)absoluteUrlStr
+{
+    return [self.URL absoluteString];
+}
+
 @dynamic status;
 - (NSString *)status
 {
