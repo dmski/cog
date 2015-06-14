@@ -14,6 +14,7 @@
 #import "Logging.h"
 #import "MiniModeMenuTitleTransformer.h"
 #import "PlaylistEntry.h"
+#import "Status.h"
 
 @implementation AppController
 
@@ -236,9 +237,33 @@ increase/decrease as long as the user holds the left/right, plus/minus button */
 	return [playlistController currentEntry];
 }
 
+// for use with apple scripting
+- (NSArray *)entries
+{
+	return [playlistController arrangedObjects];
+}
+
+// for use with apple scripting
+- (NSString *)status
+{
+	int st = [playbackController playbackStatus];
+	if (kCogStatusPlaying == st) {
+		return @"playing";
+	} else if (kCogStatusPaused == st) {
+		return @"paused";
+	} else if (kCogStatusStopped == st) {
+		return @"stopped";
+	} else {
+		return @"werid";
+	}
+}
+
 - (BOOL)application:(NSApplication *)sender delegateHandlesKey:(NSString *)key
 {
-	return [key isEqualToString:@"currentEntry"] ||  [key isEqualToString:@"play"];
+	return [key isEqualToString:@"currentEntry"] ||
+			[key isEqualToString:@"play"] ||
+			[key isEqualToString:@"entries"] ||
+			[key isEqualToString:@"status"];
 }
 
 - (void)awakeFromNib
