@@ -30,7 +30,7 @@ extern NSString *CogPlaybackDidStopNotficiation;
 	
 	NSTimer *positionTimer;
 		
-	SingleThreadPlayer *audioPlayer;
+	AudioPlayer *audioPlayer;
 	
 	int playbackStatus;
 	double position;
