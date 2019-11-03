@@ -202,6 +202,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 32D4112914CB63880050563F;
@@ -261,11 +262,10 @@
 			inputPaths = (
 			);
 			outputPaths = (
-				"$(BUILT_PRODUCTS_DIR)/$(FULL_PRODUCT_NAME)/$(PRODUCT_NAME)",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd ${BUILT_PRODUCTS_DIR}/${FULL_PRODUCT_NAME}\nln -s ./Versions/Current/${PRODUCT_NAME} ./${PRODUCT_NAME}\nLIBAVUTIL=`otool -L ./Versions/Current/${PRODUCT_NAME} | grep libavutil | awk '{print $1}'`\nLIBAVCODEC=`otool -L ./Versions/Current/${PRODUCT_NAME} | grep libavcodec | awk '{print $1}'`\ninstall_name_tool -id \"@rpath/${FULL_PRODUCT_NAME}/${PRODUCT_NAME}\" ./${PRODUCT_NAME}\ninstall_name_tool -change \"${LIBAVUTIL}\" \"@rpath/libavutil.framework/libavutil\" ./${PRODUCT_NAME}\ninstall_name_tool -change \"${LIBAVCODEC}\" \"@rpath/libavcodec.framework/libavcodec\" ./${PRODUCT_NAME}\ninstall_name_tool -add_rpath \"@loader_path/../\" ./${PRODUCT_NAME}";
+			shellScript = "cd ${BUILT_PRODUCTS_DIR}/${FULL_PRODUCT_NAME}\nln -s ./Versions/Current/${PRODUCT_NAME} ./${PRODUCT_NAME}\nLIBAVUTIL=`otool -L ./Versions/Current/${PRODUCT_NAME} | grep libavutil | awk '{print $1}'`\nLIBAVCODEC=`otool -L ./Versions/Current/${PRODUCT_NAME} | grep libavcodec | awk '{print $1}'`\ninstall_name_tool -id \"@rpath/${FULL_PRODUCT_NAME}/${PRODUCT_NAME}\" ./${PRODUCT_NAME}\ninstall_name_tool -change \"${LIBAVUTIL}\" \"@rpath/libavutil.framework/libavutil\" ./${PRODUCT_NAME}\ninstall_name_tool -change \"${LIBAVCODEC}\" \"@rpath/libavcodec.framework/libavcodec\" ./${PRODUCT_NAME}\ninstall_name_tool -add_rpath \"@loader_path/../\" ./${PRODUCT_NAME}\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

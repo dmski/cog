@@ -24,7 +24,7 @@
 		32D4104014CB59630050563F /* pixfmt.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D4103414CB59630050563F /* pixfmt.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32D4104114CB59630050563F /* rational.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D4103514CB59630050563F /* rational.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32D4104214CB59630050563F /* samplefmt.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D4103614CB59630050563F /* samplefmt.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		32D4112814CB623B0050563F /* libavutil in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D4112714CB623B0050563F /* libavutil */; };
+		32D4112814CB623B0050563F /* libavutil in Copy Files */ = {isa = PBXBuildFile; fileRef = 32D4112714CB623B0050563F /* libavutil */; };
 		32D4118F14CB65A80050563F /* audioconvert.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D4118D14CB65A80050563F /* audioconvert.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32D4119014CB65A80050563F /* mem.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D4118E14CB65A80050563F /* mem.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32D646E21689010B0091C1E0 /* version.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D646E11689010B0091C1E0 /* version.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -41,14 +41,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		32D410E914CB5E520050563F /* CopyFiles */ = {
+		32D410E914CB5E520050563F /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
-				32D4112814CB623B0050563F /* libavutil in CopyFiles */,
+				32D4112814CB623B0050563F /* libavutil in Copy Files */,
 			);
+			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -221,7 +222,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 32D4101F14CB58C60050563F /* Build configuration list for PBXNativeTarget "libavutil" */;
 			buildPhases = (
-				32D410E914CB5E520050563F /* CopyFiles */,
+				32D410E914CB5E520050563F /* Copy Files */,
 				32D411BB14CBF5B20050563F /* ShellScript */,
 				32D4100614CB58C60050563F /* Frameworks */,
 				32D4100714CB58C60050563F /* Headers */,
@@ -250,6 +251,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 32D40FFE14CB58C60050563F;
@@ -288,11 +290,10 @@
 			inputPaths = (
 			);
 			outputPaths = (
-				"$(BUILT_PRODUCTS_DIR)/$(FULL_PRODUCT_NAME)/$(PRODUCT_NAME)",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd ${BUILT_PRODUCTS_DIR}/${FULL_PRODUCT_NAME}\nln -s ./Versions/Current/${PRODUCT_NAME} ./${PRODUCT_NAME}\ninstall_name_tool -id \"@rpath/${FULL_PRODUCT_NAME}/${PRODUCT_NAME}\" ./${PRODUCT_NAME}";
+			shellScript = "cd ${BUILT_PRODUCTS_DIR}/${FULL_PRODUCT_NAME}\nln -s ./Versions/Current/${PRODUCT_NAME} ./${PRODUCT_NAME}\ninstall_name_tool -id \"@rpath/${FULL_PRODUCT_NAME}/${PRODUCT_NAME}\" ./Versions/Current/${PRODUCT_NAME}\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
