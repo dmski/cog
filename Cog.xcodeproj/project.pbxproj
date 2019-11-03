@@ -2482,6 +2482,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+                               MACOSX_DEPLOYMENT_TARGET = 10.9;
 				WRAPPER_EXTENSION = octest;
 			};
 			name = Debug;
@@ -2507,6 +2508,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+                               MACOSX_DEPLOYMENT_TARGET = 10.9;
 				WRAPPER_EXTENSION = octest;
 			};
 			name = Release;
@@ -2589,6 +2591,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+                               MACOSX_DEPLOYMENT_TARGET = 10.9;
 			};
 			name = Debug;
 		};
@@ -2602,6 +2605,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
 				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = macosx;
+                               MACOSX_DEPLOYMENT_TARGET = 10.9;
 			};
 			name = Release;
 		};

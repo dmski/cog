@@ -1057,6 +1057,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				OTHER_CFLAGS = "-DHAVE_CONFIG_H";
 				SDKROOT = macosx;
+                               MACOSX_DEPLOYMENT_TARGET = 10.9;
 				SYMROOT = ../../build;
 			};
 			name = Debug;
@@ -1069,6 +1070,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				OTHER_CFLAGS = "-DHAVE_CONFIG_H";
 				SDKROOT = macosx;
+                               MACOSX_DEPLOYMENT_TARGET = 10.9;
 				SYMROOT = ../../build;
 			};
 			name = Release;

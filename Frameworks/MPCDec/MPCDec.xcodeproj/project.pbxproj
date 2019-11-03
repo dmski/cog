@@ -320,6 +320,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				SDKROOT = macosx;
+                               MACOSX_DEPLOYMENT_TARGET = 10.9;
 				SYMROOT = ../../build;
 			};
 			name = Debug;
@@ -331,6 +332,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				SDKROOT = macosx;
+                               MACOSX_DEPLOYMENT_TARGET = 10.9;
 				SYMROOT = ../../build;
 			};
 			name = Release;

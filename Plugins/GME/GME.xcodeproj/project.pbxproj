@@ -327,6 +327,7 @@
 				OBJROOT = ../../build;
 				OTHER_CFLAGS = "-DDEBUG";
 				SDKROOT = macosx;
+                               MACOSX_DEPLOYMENT_TARGET = 10.9;
 				SYMROOT = ../../build;
 			};
 			name = Debug;
@@ -339,6 +340,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				OBJROOT = ../../build;
 				SDKROOT = macosx;
+                               MACOSX_DEPLOYMENT_TARGET = 10.9;
 				SYMROOT = ../../build;
 			};
 			name = Release;
